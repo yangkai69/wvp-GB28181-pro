@@ -44,11 +44,11 @@ public class ZLMMediaListManager {
     private ZLMHttpHookSubscribe subscribe;
 
 
-    public void updateMediaList() {
+    public void updateMediaList(String mediaServerIp) {
         storager.clearMediaList();
 
         // 使用异步的当时更新媒体流列表
-        zlmresTfulUtils.getMediaList((mediaList ->{
+        zlmresTfulUtils.getMediaList(mediaServerIp,(mediaList ->{
             if (mediaList == null) return;
             String dataStr = mediaList.getString("data");
 
@@ -123,30 +123,30 @@ public class ZLMMediaListManager {
 
     public void clearAllSessions() {
         logger.info("清空所有国标相关的session");
-        JSONObject allSessionJSON = zlmresTfulUtils.getAllSession();
-        ZLMServerConfig mediaInfo = redisCatchStorage.getMediaInfo();
-        HashSet<String> allLocalPorts = new HashSet();
-        if (allSessionJSON.getInteger("code") == 0) {
-            JSONArray data = allSessionJSON.getJSONArray("data");
-            if (data.size() > 0) {
-                for (int i = 0; i < data.size(); i++) {
-                    JSONObject sessionJOSN = data.getJSONObject(i);
-                    Integer local_port = sessionJOSN.getInteger("local_port");
-                    if (!local_port.equals(Integer.valueOf(mediaInfo.getHttpPort())) &&
-                        !local_port.equals(Integer.valueOf(mediaInfo.getHttpSSLport())) &&
-                        !local_port.equals(Integer.valueOf(mediaInfo.getRtmpPort())) &&
-                        !local_port.equals(Integer.valueOf(mediaInfo.getRtspPort())) &&
-                        !local_port.equals(Integer.valueOf(mediaInfo.getRtspSSlport())) &&
-                        !local_port.equals(Integer.valueOf(mediaInfo.getHookOnFlowReport()))){
-                        allLocalPorts.add(sessionJOSN.getInteger("local_port") + "");
-                     }
-                }
-            }
-        }
-        if (allLocalPorts.size() > 0) {
-            List<String> result = new ArrayList<>(allLocalPorts);
-            String localPortSStr = String.join(",", result);
-            zlmresTfulUtils.kickSessions(localPortSStr);
-        }
+//        JSONObject allSessionJSON = zlmresTfulUtils.getAllSession();
+//        ZLMServerConfig mediaInfo = redisCatchStorage.getMediaInfo();
+//        HashSet<String> allLocalPorts = new HashSet();
+//        if (allSessionJSON.getInteger("code") == 0) {
+//            JSONArray data = allSessionJSON.getJSONArray("data");
+//            if (data.size() > 0) {
+//                for (int i = 0; i < data.size(); i++) {
+//                    JSONObject sessionJOSN = data.getJSONObject(i);
+//                    Integer local_port = sessionJOSN.getInteger("local_port");
+//                    if (!local_port.equals(Integer.valueOf(mediaInfo.getHttpPort())) &&
+//                        !local_port.equals(Integer.valueOf(mediaInfo.getHttpSSLport())) &&
+//                        !local_port.equals(Integer.valueOf(mediaInfo.getRtmpPort())) &&
+//                        !local_port.equals(Integer.valueOf(mediaInfo.getRtspPort())) &&
+//                        !local_port.equals(Integer.valueOf(mediaInfo.getRtspSSlport())) &&
+//                        !local_port.equals(Integer.valueOf(mediaInfo.getHookOnFlowReport()))){
+//                        allLocalPorts.add(sessionJOSN.getInteger("local_port") + "");
+//                     }
+//                }
+//            }
+//        }
+//        if (allLocalPorts.size() > 0) {
+//            List<String> result = new ArrayList<>(allLocalPorts);
+//            String localPortSStr = String.join(",", result);
+//            zlmresTfulUtils.kickSessions(localPortSStr);
+//        }
     }
 }

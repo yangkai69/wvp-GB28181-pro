@@ -11,6 +11,7 @@ import javax.sip.header.HeaderAddress;
 import javax.sip.header.ToHeader;
 import javax.sip.message.Response;
 
+import com.genersoft.iot.vmp.common.StreamInfo;
 import com.genersoft.iot.vmp.gb28181.bean.SendRtpItem;
 import com.genersoft.iot.vmp.gb28181.transmit.cmd.ISIPCommander;
 import com.genersoft.iot.vmp.gb28181.transmit.request.SIPRequestAbstractProcessor;
@@ -60,7 +61,12 @@ public class ByeRequestProcessor extends SIPRequestAbstractProcessor {
 				param.put("stream",streamId);
 				param.put("ssrc",sendRtpItem.getSsrc());
 				logger.info("停止向上级推流：" + streamId);
-				zlmrtpServerFactory.stopSendRtpStream(param);
+
+				StreamInfo streamInfo = redisCatchStorage.queryPlayByStreamId(channelId,streamId);
+				String mediaServerIp = streamInfo.getMediaServerIp();
+
+				zlmrtpServerFactory.stopSendRtpStream(mediaServerIp,param);
+//				zlmrtpServerFactory.stopSendRtpStream(param);
 				redisCatchStorage.deleteSendRTPServer(platformGbId, channelId);
 				if (zlmrtpServerFactory.totalReaderCount(sendRtpItem.getApp(), streamId) == 0) {
 					logger.info(streamId + "无其它观看者，通知设备停止推流");

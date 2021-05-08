@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.genersoft.iot.vmp.common.StreamInfo;
 import com.genersoft.iot.vmp.gb28181.bean.Device;
 import com.genersoft.iot.vmp.gb28181.bean.DeviceChannel;
+import com.genersoft.iot.vmp.gb28181.session.VideoStreamSessionManager;
 import com.genersoft.iot.vmp.gb28181.transmit.cmd.impl.SIPCommander;
 import com.genersoft.iot.vmp.storager.IRedisCatchStorage;
 import com.genersoft.iot.vmp.storager.IVideoManagerStorager;
@@ -36,7 +37,8 @@ public class ApiStreamController {
     @Autowired
     private IRedisCatchStorage redisCatchStorage;
 
-
+    @Autowired
+    private VideoStreamSessionManager streamSession;
     // @Autowired
     // private ZLMRESTfulUtils zlmresTfulUtils;
 
@@ -164,6 +166,7 @@ public class ApiStreamController {
             return result;
         }
         cmder.streamByeCmd(serial, code);
+        streamSession.remove(streamInfo.getDeviceID(), streamInfo.getChannelId());
         redisCatchStorage.stopPlay(streamInfo);
         storager.stopPlay(streamInfo.getDeviceID(), streamInfo.getChannelId());
         return null;

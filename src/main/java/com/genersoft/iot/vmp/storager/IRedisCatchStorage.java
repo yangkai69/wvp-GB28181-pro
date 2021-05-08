@@ -33,12 +33,17 @@ public interface IRedisCatchStorage {
      */
     StreamInfo queryPlay(StreamInfo streamInfo);
 
-    StreamInfo queryPlayByStreamId(String steamId);
+    StreamInfo queryPlayByStreamId(String channelId,String steamId);
 
-    StreamInfo queryPlaybackByStreamId(String steamId);
+    StreamInfo queryPlayByChannel(String channelId);
+
+    StreamInfo queryPlaybackByStreamId(String channelId,String steamId);
 
     StreamInfo queryPlayByDevice(String deviceId, String channelId);
 
+    StreamInfo queryPlaybackByChannel(String channelId);
+
+    List<StreamInfo> queryPlayBackByDeviceId(String deviceId);
     /**
      * 更新流媒体信息
      * @param ZLMServerConfig

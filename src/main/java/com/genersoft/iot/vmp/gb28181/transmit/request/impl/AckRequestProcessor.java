@@ -17,10 +17,10 @@ import com.genersoft.iot.vmp.storager.IRedisCatchStorage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**    
- * @Description:ACK请求处理器  
+/**
+ * @Description:ACK请求处理器
  * @author: swwheihei
- * @date:   2020年5月3日 下午5:31:45     
+ * @date:   2020年5月3日 下午5:31:45
  */
 public class AckRequestProcessor extends SIPRequestAbstractProcessor {
 
@@ -31,9 +31,9 @@ public class AckRequestProcessor extends SIPRequestAbstractProcessor {
 
 	private ZLMRTPServerFactory zlmrtpServerFactory;
 
-	/**   
+	/**
 	 * 处理  ACK请求
-	 * 
+	 *
 	 * @param evt
 	 */
 	@Override
@@ -80,7 +80,8 @@ public class AckRequestProcessor extends SIPRequestAbstractProcessor {
 						if (zlmrtpServerFactory.isStreamReady(streamInfo.getApp(), streamInfo.getStreamId())) {
 							rtpPushed = true;
 							logger.info("已获取设备推流，开始向上级推流");
-							zlmrtpServerFactory.startSendRtpStream(param);
+//							zlmrtpServerFactory.startSendRtpStream(param);
+							zlmrtpServerFactory.startSendRtpStream(streamInfo.getMediaServerIp(),param);
 						} else {
 							logger.info("等待设备推流.......");
 							Thread.sleep(1000);
@@ -106,7 +107,7 @@ public class AckRequestProcessor extends SIPRequestAbstractProcessor {
 		// } catch (InvalidArgumentException e) {
 		// 	e.printStackTrace();
 		// }
-		
+
 	}
 
 	public IRedisCatchStorage getRedisCatchStorage() {

@@ -350,12 +350,16 @@ public class SIPCommander implements ISIPCommander {
 		String streamId = null;
 		try {
 			if (device == null) return;
-			String ssrc = streamSession.createPlaySsrc();
-			if (mediaConfig.isRtpEnable()) {
-				streamId = String.format("gb_play_%s_%s", device.getDeviceId(), channelId);
-			}else {
-				streamId = String.format("%08x", Integer.parseInt(ssrc)).toUpperCase();
-			}
+			StreamInfo streamInfo = streamSession.createPlayStreamInfo(device, channelId);
+			String mediaServerIp = streamInfo.getMediaServerIp();
+			streamId = streamInfo.getStreamId();
+			String ssrc = streamInfo.getSsrc();
+//			String ssrc = streamSession.createPlaySsrc();
+//			if (mediaConfig.isRtpEnable()) {
+//				streamId = String.format("gb_play_%s_%s", device.getDeviceId(), channelId);
+//			}else {
+//				streamId = String.format("%08x", Integer.parseInt(ssrc)).toUpperCase();
+//			}
 			String streamMode = device.getStreamMode().toUpperCase();
 			ZLMServerConfig mediaInfo = redisCatchStorage.getMediaInfo();
 			if (mediaInfo == null) {
@@ -365,7 +369,7 @@ public class SIPCommander implements ISIPCommander {
 			String mediaPort = null;
 			// 使用动态udp端口
 			if (mediaConfig.isRtpEnable()) {
-				mediaPort = zlmrtpServerFactory.createRTPServer(streamId) + "";
+				mediaPort = zlmrtpServerFactory.createRTPServer(mediaServerIp,streamId) + "";
 			}else {
 				mediaPort = mediaInfo.getRtpProxyPort();
 			}
@@ -385,9 +389,9 @@ public class SIPCommander implements ISIPCommander {
 			StringBuffer content = new StringBuffer(200);
 			content.append("v=0\r\n");
 //			content.append("o=" + sipConfig.getSipId() + " 0 0 IN IP4 "+mediaInfo.getWanIp()+"\r\n");
-			content.append("o="+"00000"+" 0 0 IN IP4 "+mediaInfo.getWanIp()+"\r\n");
+			content.append("o="+"00000"+" 0 0 IN IP4 "+mediaServerIp+"\r\n");
 			content.append("s=Play\r\n");
-			content.append("c=IN IP4 "+mediaInfo.getWanIp()+"\r\n");
+			content.append("c=IN IP4 "+mediaServerIp+"\r\n");
 			content.append("t=0 0\r\n");
 
 			if (seniorSdp) {
@@ -469,8 +473,12 @@ public class SIPCommander implements ISIPCommander {
 			, SipSubscribe.Event errorEvent) {
 		try {
 			ZLMServerConfig mediaInfo = redisCatchStorage.getMediaInfo();
-			String ssrc = streamSession.createPlayBackSsrc();
-			String streamId = String.format("%08x", Integer.parseInt(ssrc)).toUpperCase();
+			StreamInfo streamInfo = streamSession.createPlayBackStreamInfo(device, channelId);
+			String mediaServerIp = streamInfo.getMediaServerIp();
+			String streamId = streamInfo.getStreamId();
+			String ssrc = streamInfo.getSsrc();
+//			String ssrc = streamSession.createPlayBackSsrc();
+//			String streamId = String.format("%08x", Integer.parseInt(ssrc)).toUpperCase();
 			// 添加订阅
 			JSONObject subscribeKey = new JSONObject();
 			subscribeKey.put("app", "rtp");
@@ -488,13 +496,13 @@ public class SIPCommander implements ISIPCommander {
 	        content.append("o="+sipConfig.getSipId()+" 0 0 IN IP4 "+sipConfig.getSipIp()+"\r\n");
 	        content.append("s=Playback\r\n");
 	        content.append("u="+channelId+":0\r\n");
-	        content.append("c=IN IP4 "+mediaInfo.getWanIp()+"\r\n");
+	        content.append("c=IN IP4 "+mediaServerIp+"\r\n");
 	        content.append("t="+DateUtil.yyyy_MM_dd_HH_mm_ssToTimestamp(startTime)+" "
 					+DateUtil.yyyy_MM_dd_HH_mm_ssToTimestamp(endTime) +"\r\n");
 			String mediaPort = null;
 			// 使用动态udp端口
 			if (mediaConfig.isRtpEnable()) {
-				mediaPort = zlmrtpServerFactory.createRTPServer(streamId) + "";
+				mediaPort = zlmrtpServerFactory.createRTPServer(mediaServerIp,streamId) + "";
 			}else {
 				mediaPort = mediaInfo.getRtpProxyPort();
 			}
@@ -605,7 +613,8 @@ public class SIPCommander implements ISIPCommander {
 							}
 						}
 					}
-					redisCatchStorage.stopPlay(streamInfo);
+					streamSession.remove(deviceId, channelId);
+//					redisCatchStorage.stopPlay(streamInfo);
 				}
 
 				if (okEvent != null) {
@@ -638,7 +647,9 @@ public class SIPCommander implements ISIPCommander {
 			}
 
 			dialog.sendRequest(clientTransaction);
-			zlmrtpServerFactory.closeRTPServer(streamSession.getStreamId(deviceId, channelId));
+			String streamId = streamSession.getStreamId(deviceId, channelId);
+			String mediaServerIp = streamSession.getMediaServerIp(channelId, streamId);
+			zlmrtpServerFactory.closeRTPServer(mediaServerIp,streamId);
 			streamSession.remove(deviceId, channelId);
 		} catch (SipException | ParseException e) {
 			e.printStackTrace();
@@ -1445,7 +1456,8 @@ public class SIPCommander implements ISIPCommander {
 	public void closeRTPServer(Device device, String channelId) {
 		if (mediaConfig.isRtpEnable()) {
 			String streamId = String.format("gb_play_%s_%s", device.getDeviceId(), channelId);
-			zlmrtpServerFactory.closeRTPServer(streamId);
+			String mediaServerIp = streamSession.getMediaServerIp(channelId, streamId);
+			zlmrtpServerFactory.closeRTPServer(mediaServerIp,streamId);
 		}
 		streamSession.remove(device.getDeviceId(), channelId);
 	}

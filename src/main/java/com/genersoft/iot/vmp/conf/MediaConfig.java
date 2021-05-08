@@ -3,11 +3,23 @@ package com.genersoft.iot.vmp.conf;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 
+import java.util.HashMap;
+
 @Configuration("mediaConfig")
 public class MediaConfig {
 
     @Value("${media.ip}")
     private String ip;
+
+    private String[] mediaIpArr;
+
+    public String[] getMediaIpArr() {
+        return mediaIpArr;
+    }
+
+    public void setMediaIpArr(String[] mediaIpArr) {
+        this.mediaIpArr = mediaIpArr;
+    }
 
     @Value("${media.wanIp}")
     private String wanIp;
@@ -50,6 +62,20 @@ public class MediaConfig {
 
     @Value("${media.rtp.portRange}")
     private String rtpPortRange;
+
+    /**
+     * 每一台ZLM都有一套独立的SSRC列表
+     * 在ApplicationCheckRunner里对mediaServerSsrcMap进行初始化
+     */
+    private HashMap<String, SsrcConfig> mediaServerSsrcMap;
+
+    public HashMap<String, SsrcConfig> getMediaServerSsrcMap() {
+        return mediaServerSsrcMap;
+    }
+
+    public void setMediaServerSsrcMap(HashMap<String, SsrcConfig> mediaServerSsrcMap) {
+        this.mediaServerSsrcMap = mediaServerSsrcMap;
+    }
 
     public String getIp() {
         return ip;

@@ -1,5 +1,6 @@
 package com.genersoft.iot.vmp.gb28181.event.platformNotRegister;
 
+import com.genersoft.iot.vmp.common.StreamInfo;
 import com.genersoft.iot.vmp.gb28181.bean.ParentPlatform;
 import com.genersoft.iot.vmp.gb28181.bean.SendRtpItem;
 import com.genersoft.iot.vmp.gb28181.event.SipSubscribe;
@@ -73,7 +74,20 @@ public class PlatformNotRegisterEventLister implements ApplicationListener<Platf
             param.put("vhost","__defaultVhost__");
             param.put("app", app.toString());
             param.put("stream", stream.toString());
-            zlmrtpServerFactory.stopSendRtpStream(param);
+
+            String mediaServerIp = "";
+            if(sendRtpItems.size() > 0){
+                String streamId = sendRtpItems.get(0).getStreamId();
+                String[] s = streamId.split("_");
+                if (s.length != 4) {
+                    return;
+                }
+                String channelId = s[3];
+                StreamInfo streamInfo = redisCatchStorage.queryPlayByStreamId(channelId,streamId);
+                mediaServerIp = streamInfo.getMediaServerIp();
+            }
+
+            zlmrtpServerFactory.stopSendRtpStream(mediaServerIp,param);
 
         }
 

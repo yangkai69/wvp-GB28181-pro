@@ -1,6 +1,7 @@
 package com.genersoft.iot.vmp.vmanager.gb28181.play;
 
 import com.genersoft.iot.vmp.common.StreamInfo;
+import com.genersoft.iot.vmp.gb28181.session.VideoStreamSessionManager;
 import com.genersoft.iot.vmp.media.zlm.ZLMServerConfig;
 import com.genersoft.iot.vmp.gb28181.bean.Device;
 import com.genersoft.iot.vmp.gb28181.transmit.callback.DeferredResultHolder;
@@ -64,6 +65,9 @@ public class PlayController {
 	@Autowired
 	private IMediaService mediaService;
 
+	@Autowired
+	private VideoStreamSessionManager streamSession;
+
 	@ApiOperation("开始点播")
 	@ApiImplicitParams({
 			@ApiImplicitParam(name = "deviceId", value = "设备ID", dataTypeClass = String.class),
@@ -96,7 +100,8 @@ public class PlayController {
 		resultHolder.put(DeferredResultHolder.CALLBACK_CMD_STOP + uuid, result);
 
 		cmder.streamByeCmd(deviceId, channelId, event -> {
-			StreamInfo streamInfo = redisCatchStorage.queryPlayByDevice(deviceId, channelId);
+			StreamInfo streamInfo = streamSession.getPlayStreamInfo(channelId);
+//			StreamInfo streamInfo = redisCatchStorage.queryPlayByDevice(deviceId, channelId);
 			if (streamInfo == null) {
 				RequestMessage msg = new RequestMessage();
 				msg.setId(DeferredResultHolder.CALLBACK_CMD_STOP + uuid);
@@ -104,6 +109,7 @@ public class PlayController {
 				resultHolder.invokeResult(msg);
 				storager.stopPlay(deviceId, channelId);
 			}else {
+				streamSession.remove(deviceId, channelId);
 				redisCatchStorage.stopPlay(streamInfo);
 				storager.stopPlay(streamInfo.getDeviceID(), streamInfo.getChannelId());
 				RequestMessage msg = new RequestMessage();
@@ -152,12 +158,20 @@ public class PlayController {
 	})
 	@PostMapping("/convert/{streamId}")
 	public ResponseEntity<String> playConvert(@PathVariable String streamId) {
-		StreamInfo streamInfo = redisCatchStorage.queryPlayByStreamId(streamId);
+		String[] s = streamId.split("_");
+		if (s.length != 4) {
+			return new ResponseEntity<String>("convert接口参数错误", HttpStatus.OK);
+		}
+		String channelId = s[3];
+		StreamInfo streamInfo = redisCatchStorage.queryPlayByStreamId(channelId,streamId);
+//		StreamInfo streamInfo = redisCatchStorage.queryPlayByStreamId(streamId);
 		if (streamInfo == null) {
 			logger.warn("视频转码API调用失败！, 视频流已经停止!");
 			return new ResponseEntity<String>("未找到视频流信息, 视频流可能已经停止", HttpStatus.OK);
 		}
 		JSONObject rtpInfo = zlmresTfulUtils.getRtpInfo(streamId);
+		String mediaServerIp = streamInfo.getMediaServerIp();
+
 		if (!rtpInfo.getBoolean("exist")) {
 			logger.warn("视频转码API调用失败！, 视频流已停止推流!");
 			return new ResponseEntity<String>("推流信息在流媒体中不存在, 视频流可能已停止推流", HttpStatus.OK);
@@ -166,7 +180,8 @@ public class PlayController {
 			String dstUrl = String.format("rtmp://%s:%s/convert/%s", "127.0.0.1", mediaInfo.getRtmpPort(),
 					streamId );
 			String srcUrl = String.format("rtsp://%s:%s/rtp/%s", "127.0.0.1", mediaInfo.getRtspPort(), streamId);
-			JSONObject jsonObject = zlmresTfulUtils.addFFmpegSource(srcUrl, dstUrl, "1000000");
+			JSONObject jsonObject = zlmresTfulUtils.addFFmpegSource(mediaServerIp,srcUrl, dstUrl, "1000000");
+//			JSONObject jsonObject = zlmresTfulUtils.addFFmpegSource(srcUrl, dstUrl, "1000000");
 			logger.info(jsonObject.toJSONString());
 			JSONObject result = new JSONObject();
 			if (jsonObject != null && jsonObject.getInteger("code") == 0) {
@@ -194,10 +209,11 @@ public class PlayController {
 	@ApiImplicitParams({
 			@ApiImplicitParam(name = "key", value = "视频流key", dataTypeClass = String.class),
 	})
-	@PostMapping("/convertStop/{key}")
-	public ResponseEntity<String> playConvertStop(@PathVariable String key) {
-
-		JSONObject jsonObject = zlmresTfulUtils.delFFmpegSource(key);
+	@PostMapping("/convertStop/{channelId}/{streamId}/{key}")
+	public ResponseEntity<String> playConvertStop(@PathVariable String channelId, @PathVariable String streamId,@PathVariable String key) {
+		String mediaServerIp = streamSession.getMediaServerIp(channelId, streamId);
+		JSONObject jsonObject = zlmresTfulUtils.delFFmpegSource(mediaServerIp,key);
+//		JSONObject jsonObject = zlmresTfulUtils.delFFmpegSource(key);
 		logger.info(jsonObject.toJSONString());
 		JSONObject result = new JSONObject();
 		if (jsonObject != null && jsonObject.getInteger("code") == 0) {

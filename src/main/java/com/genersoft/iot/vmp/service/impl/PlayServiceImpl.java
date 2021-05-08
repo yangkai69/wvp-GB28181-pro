@@ -80,6 +80,7 @@ public class PlayServiceImpl implements IPlayService {
             logger.warn(String.format("设备点播超时，deviceId：%s ，channelId：%s", deviceId, channelId));
             // 释放rtpserver
             cmder.closeRTPServer(playResult.getDevice(), channelId);
+            streamSession.remove(deviceId, channelId);
             RequestMessage msg = new RequestMessage();
             msg.setId(DeferredResultHolder.CALLBACK_CMD_PlAY + playResult.getUuid());
             msg.setData("Timeout");
@@ -123,7 +124,7 @@ public class PlayServiceImpl implements IPlayService {
                     hookEvent.response(JSONObject.parseObject(JSON.toJSONString(streamInfo)));
                 }
             } else {
-                redisCatchStorage.stopPlay(streamInfo);
+                streamSession.remove(deviceId,channelId);
                 storager.stopPlay(streamInfo.getDeviceID(), streamInfo.getChannelId());
                 cmder.playStreamCmd(device, channelId, (JSONObject response) -> {
                     logger.info("收到订阅消息： " + response.toJSONString());
@@ -189,10 +190,14 @@ public class PlayServiceImpl implements IPlayService {
 
     public StreamInfo onPublishHandler(JSONObject resonse, String deviceId, String channelId, String uuid) {
         String streamId = resonse.getString("stream");
-        JSONArray tracks = resonse.getJSONArray("tracks");
-        StreamInfo streamInfo = mediaService.getStreamInfoByAppAndStream("rtp", streamId, tracks);
-        streamInfo.setDeviceID(deviceId);
-        streamInfo.setChannelId(channelId);
+//        JSONArray tracks = resonse.getJSONArray("tracks");
+//        StreamInfo streamInfo = mediaService.getStreamInfoByAppAndStream("rtp", streamId, tracks);
+//        streamInfo.setDeviceID(deviceId);
+//        streamInfo.setChannelId(channelId);
+        StreamInfo streamInfo = redisCatchStorage.queryPlayByStreamId(channelId,streamId);
+        if(streamInfo == null){
+            streamInfo = redisCatchStorage.queryPlaybackByStreamId(channelId,streamId);
+        }
         return streamInfo;
     }
 

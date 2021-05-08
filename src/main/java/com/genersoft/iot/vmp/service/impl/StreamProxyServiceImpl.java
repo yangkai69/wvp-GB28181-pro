@@ -1,6 +1,7 @@
 package com.genersoft.iot.vmp.service.impl;
 
 import com.alibaba.fastjson.JSONObject;
+import com.genersoft.iot.vmp.common.StreamInfo;
 import com.genersoft.iot.vmp.gb28181.bean.GbStream;
 import com.genersoft.iot.vmp.media.zlm.ZLMServerConfig;
 import com.genersoft.iot.vmp.media.zlm.ZLMRESTfulUtils;
@@ -103,7 +104,16 @@ public class StreamProxyServiceImpl implements IStreamProxyService {
             result = zlmresTfulUtils.addStreamProxy(param.getApp(), param.getStream(), param.getUrl(),
                     param.isEnable_hls(), param.isEnable_mp4(), param.getRtp_type());
         }else if ("ffmpeg".equals(param.getType())) {
-            result = zlmresTfulUtils.addFFmpegSource(param.getSrc_url(), param.getDst_url(),
+
+            String streamId = param.getStream();
+            String[] s = streamId.split("_");
+            if (s.length != 4) {
+                return null;
+            }
+            String channelId = s[3];
+            StreamInfo streamInfo = redisCatchStorage.queryPlayByStreamId(channelId,streamId);
+
+            result = zlmresTfulUtils.addFFmpegSource(streamInfo.getMediaServerIp(),param.getSrc_url(), param.getDst_url(),
                     param.getTimeout_ms() + "");
         }
         return result;

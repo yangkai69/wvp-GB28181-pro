@@ -8,6 +8,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.genersoft.iot.vmp.common.StreamInfo;
 import com.genersoft.iot.vmp.conf.MediaConfig;
 import com.genersoft.iot.vmp.gb28181.bean.Device;
+import com.genersoft.iot.vmp.gb28181.session.VideoStreamSessionManager;
 import com.genersoft.iot.vmp.storager.IRedisCatchStorage;
 import com.genersoft.iot.vmp.storager.IVideoManagerStorager;
 import com.genersoft.iot.vmp.service.IPlayService;
@@ -67,6 +68,9 @@ public class ZLMHttpHookListener {
 
 	@Autowired
 	private MediaConfig mediaConfig;
+
+	@Autowired
+	private VideoStreamSessionManager streamSession;
 
 	/**
 	 * 流量统计事件，播放器或推流器断开时并且耗用流量超过特定阈值时会触发此事件，阈值通过配置文件general.flowThreshold配置；此事件对回复不敏感。
@@ -247,17 +251,25 @@ public class ZLMHttpHookListener {
 		String schema = json.getString("schema");
 		JSONArray tracks = json.getJSONArray("tracks");
 		boolean regist = json.getBoolean("regist");
+
+		String[] s = streamId.split("_");
+		if (s.length != 4) {
+			new ResponseEntity<String>("streamid错误，无法获取channelId",HttpStatus.OK);
+		}
+		String channelId = s[3];
+
 		if (tracks != null) {
 			logger.info("[stream: " + streamId + "] on_stream_changed->>" + schema);
 		}
 		if ("rtmp".equals(schema)){
 			if ("rtp".equals(app) && !regist ) {
-				StreamInfo streamInfo = redisCatchStorage.queryPlayByStreamId(streamId);
+				StreamInfo streamInfo = redisCatchStorage.queryPlayByStreamId(channelId,streamId);
 				if (streamInfo!=null){
-					redisCatchStorage.stopPlay(streamInfo);
+					streamSession.remove(streamInfo.getDeviceID(), channelId);
+//					redisCatchStorage.stopPlay(streamInfo);
 					storager.stopPlay(streamInfo.getDeviceID(), streamInfo.getChannelId());
 				}else{
-					streamInfo = redisCatchStorage.queryPlaybackByStreamId(streamId);
+					streamInfo = redisCatchStorage.queryPlaybackByStreamId(channelId,streamId);
 					redisCatchStorage.stopPlayback(streamInfo);
 				}
 			}else {
@@ -292,21 +304,28 @@ public class ZLMHttpHookListener {
 		String streamId = json.getString("stream");
 		String app = json.getString("app");
 
+		String[] s = streamId.split("_");
+		if (s.length != 4) {
+			new ResponseEntity<String>("streamid错误，无法获取channelId",HttpStatus.OK);
+		}
+		String channelId = s[3];
+
 		if ("rtp".equals(app)){
 			JSONObject ret = new JSONObject();
 			ret.put("code", 0);
 			ret.put("close", true);
-			StreamInfo streamInfoForPlayCatch = redisCatchStorage.queryPlayByStreamId(streamId);
+			StreamInfo streamInfoForPlayCatch = redisCatchStorage.queryPlayByStreamId(channelId,streamId);
 			if (streamInfoForPlayCatch != null) {
 				if (redisCatchStorage.isChannelSendingRTP(streamInfoForPlayCatch.getChannelId())) {
 					ret.put("close", false);
 				} else {
 					cmder.streamByeCmd(streamInfoForPlayCatch.getDeviceID(), streamInfoForPlayCatch.getChannelId());
-					redisCatchStorage.stopPlay(streamInfoForPlayCatch);
+					streamSession.remove(streamInfoForPlayCatch.getDeviceID(), channelId);
+//					redisCatchStorage.stopPlay(streamInfoForPlayCatch);
 					storager.stopPlay(streamInfoForPlayCatch.getDeviceID(), streamInfoForPlayCatch.getChannelId());
 				}
 			}else{
-				StreamInfo streamInfoForPlayBackCatch = redisCatchStorage.queryPlaybackByStreamId(streamId);
+				StreamInfo streamInfoForPlayBackCatch = redisCatchStorage.queryPlaybackByStreamId(channelId,streamId);
 				if (streamInfoForPlayBackCatch != null) {
 					cmder.streamByeCmd(streamInfoForPlayBackCatch.getDeviceID(), streamInfoForPlayBackCatch.getChannelId());
 					redisCatchStorage.stopPlayback(streamInfoForPlayBackCatch);
@@ -336,12 +355,18 @@ public class ZLMHttpHookListener {
 		if (autoApplyPlay) {
 			String app = json.getString("app");
 			String streamId = json.getString("stream");
-				StreamInfo streamInfo = redisCatchStorage.queryPlayByStreamId(streamId);
+			String[] s1 = streamId.split("_");
+			if (s1.length != 4) {
+				new ResponseEntity<String>("streamid错误，无法获取channelId",HttpStatus.OK);
+			}
+			String channelId = s1[3];
+
+			StreamInfo streamInfo = redisCatchStorage.queryPlayByStreamId(channelId,streamId);
 			if ("rtp".equals(app) && streamId.contains("gb_play") && streamInfo == null) {
 				String[] s = streamId.split("_");
 				if (s.length == 4) {
 					String deviceId = s[2];
-					String channelId = s[3];
+//					String channelId = s[3];
 					Device device = storager.queryVideoDevice(deviceId);
 					if (device != null) {
 						UUID uuid = UUID.randomUUID();

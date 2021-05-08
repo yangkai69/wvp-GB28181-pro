@@ -5,6 +5,8 @@ import com.alibaba.fastjson.JSONArray;
 public class StreamInfo {
 
     private String app;
+    private String mediaServerIp;
+    private String ssrc;
     private String streamId;
     private String deviceID;
     private String channelId;
@@ -29,6 +31,22 @@ public class StreamInfo {
     }
 
     private TransactionInfo transactionInfo;
+
+    public String getMediaServerIp() {
+        return mediaServerIp;
+    }
+
+    public void setMediaServerIp(String mediaServerIp) {
+        this.mediaServerIp = mediaServerIp;
+    }
+
+    public String getSsrc() {
+        return ssrc;
+    }
+
+    public void setSsrc(String ssrc) {
+        this.ssrc = ssrc;
+    }
 
     public String getApp() {
         return app;

@@ -34,9 +34,9 @@ public class ZLMServerConfig {
     @JSONField(name = "general.streamNoneReaderDelayMS")
     private String generalStreamNoneReaderDelayMS;
 
-    private String localIP;
-
-    private String wanIp;
+//    private String localIP;
+//
+//    private String wanIp;
 
     private long updateTime;
 
@@ -281,13 +281,13 @@ public class ZLMServerConfig {
         this.generalStreamNoneReaderDelayMS = generalStreamNoneReaderDelayMS;
     }
 
-    public String getLocalIP() {
-        return localIP;
-    }
-
-    public void setLocalIP(String localIP) {
-        this.localIP = localIP;
-    }
+//    public String getLocalIP() {
+//        return localIP;
+//    }
+//
+//    public void setLocalIP(String localIP) {
+//        this.localIP = localIP;
+//    }
 
     public String getHlsFileBufSize() {
         return hlsFileBufSize;
@@ -729,13 +729,13 @@ public class ZLMServerConfig {
         this.shellPhell = shellPhell;
     }
 
-    public String getWanIp() {
-        return wanIp;
-    }
-
-    public void setWanIp(String wanIp) {
-        this.wanIp = wanIp;
-    }
+//    public String getWanIp() {
+//        return wanIp;
+//    }
+//
+//    public void setWanIp(String wanIp) {
+//        this.wanIp = wanIp;
+//    }
 
     public long getUpdateTime() {
         return updateTime;

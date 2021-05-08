@@ -18,8 +18,8 @@ public class ZLMServerManger {
 
     public void updateServerCatch(ZLMServerConfig zlmServerConfig) {
 
-        zlmServerConfig.setLocalIP(mediaConfig.getIp());
-        zlmServerConfig.setWanIp(StringUtils.isEmpty(mediaConfig.getWanIp())? mediaConfig.getIp(): mediaConfig.getWanIp());
+//        zlmServerConfig.setLocalIP(mediaConfig.getIp());
+//        zlmServerConfig.setWanIp(StringUtils.isEmpty(mediaConfig.getWanIp())? mediaConfig.getIp(): mediaConfig.getWanIp());
         zlmServerConfig.setHttpPort(mediaConfig.getHttpPort());
 
         if(!StringUtils.isEmpty(mediaConfig.getHttpSSlPort()))

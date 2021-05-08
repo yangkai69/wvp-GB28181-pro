@@ -1,6 +1,7 @@
 package com.genersoft.iot.vmp.vmanager.gb28181.playback;
 
 import com.genersoft.iot.vmp.common.StreamInfo;
+import com.genersoft.iot.vmp.gb28181.session.VideoStreamSessionManager;
 import com.genersoft.iot.vmp.gb28181.transmit.callback.DeferredResultHolder;
 import com.genersoft.iot.vmp.gb28181.transmit.callback.RequestMessage;
 //import com.genersoft.iot.vmp.media.zlm.ZLMRESTfulUtils;
@@ -47,6 +48,8 @@ public class PlaybackController {
 	@Autowired
 	private IRedisCatchStorage redisCatchStorage;
 
+	@Autowired
+	private VideoStreamSessionManager streamSession;
 	// @Autowired
 	// private ZLMRESTfulUtils zlmresTfulUtils;
 
@@ -75,6 +78,7 @@ public class PlaybackController {
 		// 超时处理
 		result.onTimeout(()->{
 			logger.warn(String.format("设备回放超时，deviceId：%s ，channelId：%s", deviceId, channelId));
+			streamSession.remove(deviceId,channelId);
 			RequestMessage msg = new RequestMessage();
 			msg.setId(DeferredResultHolder.CALLBACK_CMD_PlAY + uuid);
 			msg.setData("Timeout");
@@ -91,6 +95,7 @@ public class PlaybackController {
 			logger.info("收到订阅消息： " + response.toJSONString());
 			playService.onPublishHandlerForPlayBack(response, deviceId, channelId, uuid.toString());
 		}, event -> {
+			streamSession.remove(deviceId,channelId);
 			Response response = event.getResponse();
 			RequestMessage msg = new RequestMessage();
 			msg.setId(DeferredResultHolder.CALLBACK_CMD_PlAY + uuid);

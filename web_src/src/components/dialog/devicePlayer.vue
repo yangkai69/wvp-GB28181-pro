@@ -318,7 +318,7 @@ export default {
             that.$refs.videoPlayer.pause()
             this.$axios({
                 method: 'post',
-                url: '/api/play/convertStop/' + this.convertKey
+                url: '/api/play/convertStop/' + this.channelId + "/" +  + this.streamId + "/" + this.convertKey
               }).then(function (res) {
                 if (res.data.code == 0) {
                   console.log(res.data.msg)

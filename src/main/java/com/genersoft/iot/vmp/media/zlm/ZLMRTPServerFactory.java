@@ -31,25 +31,25 @@ public class ZLMRTPServerFactory {
 
     private Map<String, Integer> currentStreams = null;
 
-    public int createRTPServer(String streamId) {
-        if (currentStreams == null) {
-            currentStreams = new HashMap<>();
-            JSONObject jsonObject = zlmresTfulUtils.listRtpServer();
-            JSONArray data = jsonObject.getJSONArray("data");
-            if (data != null) {
-                for (int i = 0; i < data.size(); i++) {
-                    JSONObject dataItem = data.getJSONObject(i);
-                    currentStreams.put(dataItem.getString("stream_id"), dataItem.getInteger("port"));
-                }
-            }
-        }
-        // 已经在推流
-        if (currentStreams.get(streamId) != null) {
-            Map<String, Object> closeRtpServerParam = new HashMap<>();
-            closeRtpServerParam.put("stream_id", streamId);
-            zlmresTfulUtils.closeRtpServer(closeRtpServerParam);
-            currentStreams.remove(streamId);
-        }
+    public int createRTPServer(String mediaServerIp, String streamId) {
+//        if (currentStreams == null) {
+//            currentStreams = new HashMap<>();
+//            JSONObject jsonObject = zlmresTfulUtils.listRtpServer();
+//            JSONArray data = jsonObject.getJSONArray("data");
+//            if (data != null) {
+//                for (int i = 0; i < data.size(); i++) {
+//                    JSONObject dataItem = data.getJSONObject(i);
+//                    currentStreams.put(dataItem.getString("stream_id"), dataItem.getInteger("port"));
+//                }
+//            }
+//        }
+//        // 已经在推流
+//        if (currentStreams.get(streamId) != null) {
+//            Map<String, Object> closeRtpServerParam = new HashMap<>();
+//            closeRtpServerParam.put("stream_id", streamId);
+//            zlmresTfulUtils.closeRtpServer(closeRtpServerParam);
+//            currentStreams.remove(streamId);
+//        }
 
         Map<String, Object> param = new HashMap<>();
         int result = -1;
@@ -57,7 +57,7 @@ public class ZLMRTPServerFactory {
         param.put("port", newPort);
         param.put("enable_tcp", 1);
         param.put("stream_id", streamId);
-        JSONObject jsonObject = zlmresTfulUtils.openRtpServer(param);
+        JSONObject jsonObject = zlmresTfulUtils.openRtpServer(mediaServerIp,param);
 
         if (jsonObject != null) {
             switch (jsonObject.getInteger("code")){
@@ -67,11 +67,11 @@ public class ZLMRTPServerFactory {
                 case -300: // id已经存在, 可能已经在其他端口推流
                     Map<String, Object> closeRtpServerParam = new HashMap<>();
                     closeRtpServerParam.put("stream_id", streamId);
-                    zlmresTfulUtils.closeRtpServer(closeRtpServerParam);
+                    zlmresTfulUtils.closeRtpServer(mediaServerIp,closeRtpServerParam);
                     result = newPort;
                     break;
                 case -400: // 端口占用
-                    result= createRTPServer(streamId);
+                    result= createRTPServer(mediaServerIp,streamId);
                     break;
                 default:
                     logger.error("创建RTP Server 失败: " + jsonObject.getString("msg"));
@@ -84,11 +84,11 @@ public class ZLMRTPServerFactory {
         return result;
     }
 
-    public boolean closeRTPServer(String streamId) {
+    public boolean closeRTPServer(String mediaServerIp, String streamId) {
         boolean result = false;
         Map<String, Object> param = new HashMap<>();
         param.put("stream_id", streamId);
-        JSONObject jsonObject = zlmresTfulUtils.closeRtpServer(param);
+        JSONObject jsonObject = zlmresTfulUtils.closeRtpServer(mediaServerIp,param);
         if (jsonObject != null ) {
             if (jsonObject.getInteger("code") == 0) {
                 result = jsonObject.getInteger("hit") == 1;
@@ -132,9 +132,9 @@ public class ZLMRTPServerFactory {
      */
     public SendRtpItem createSendRtpItem(String ip, int port, String ssrc, String platformId, String deviceId, String channelId, boolean tcp){
         String playSsrc = SsrcUtil.getPlaySsrc();
-        int localPort = createRTPServer(SsrcUtil.getPlaySsrc());
+        int localPort = createRTPServer(ip,SsrcUtil.getPlaySsrc());
         if (localPort != -1) {
-            closeRTPServer(playSsrc);
+            closeRTPServer(ip,playSsrc);
         }else {
             logger.error("没有可用的端口");
             return null;
@@ -164,9 +164,9 @@ public class ZLMRTPServerFactory {
      */
     public SendRtpItem createSendRtpItem(String ip, int port, String ssrc, String platformId, String app, String stream, String channelId, boolean tcp){
         String playSsrc = SsrcUtil.getPlaySsrc();
-        int localPort = createRTPServer(SsrcUtil.getPlaySsrc());
+        int localPort = createRTPServer(ip,SsrcUtil.getPlaySsrc());
         if (localPort != -1) {
-            closeRTPServer(playSsrc);
+            closeRTPServer(ip,playSsrc);
         }else {
             logger.error("没有可用的端口");
             return null;
@@ -187,9 +187,9 @@ public class ZLMRTPServerFactory {
     /**
      * 调用zlm RESTful API —— startSendRtp
      */
-    public Boolean startSendRtpStream(Map<String, Object>param) {
+    public Boolean startSendRtpStream(String mediaServerIp,Map<String, Object>param) {
         Boolean result = false;
-        JSONObject jsonObject = zlmresTfulUtils.startSendRtp(param);
+        JSONObject jsonObject = zlmresTfulUtils.startSendRtp(mediaServerIp,param);
         logger.info(jsonObject.toJSONString());
         if (jsonObject == null) {
             logger.error("RTP推流失败: 请检查ZLM服务");
@@ -231,9 +231,9 @@ public class ZLMRTPServerFactory {
     /**
      * 调用zlm RESTful API —— stopSendRtp
      */
-    public Boolean stopSendRtpStream(Map<String, Object>param) {
+    public Boolean stopSendRtpStream(String mediaServerIp, Map<String, Object>param) {
         Boolean result = false;
-        JSONObject jsonObject = zlmresTfulUtils.stopSendRtp(param);
+        JSONObject jsonObject = zlmresTfulUtils.stopSendRtp(mediaServerIp,param);
         logger.info(jsonObject.toJSONString());
         if (jsonObject == null) {
             logger.error("停止RTP推流失败: 请检查ZLM服务");

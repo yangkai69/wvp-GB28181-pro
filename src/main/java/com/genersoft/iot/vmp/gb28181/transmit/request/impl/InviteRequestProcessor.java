@@ -11,6 +11,7 @@ import javax.sip.header.*;
 import javax.sip.message.Request;
 import javax.sip.message.Response;
 
+import com.genersoft.iot.vmp.common.StreamInfo;
 import com.genersoft.iot.vmp.media.zlm.ZLMServerConfig;
 import com.genersoft.iot.vmp.gb28181.bean.*;
 import com.genersoft.iot.vmp.gb28181.transmit.cmd.impl.SIPCommander;
@@ -166,6 +167,8 @@ public class InviteRequestProcessor extends SIPRequestAbstractProcessor {
 				//String sessionName = sdp.getSessionName().getValue();
 				logger.info("[上级点播]用户：{}， 地址：{}:{}， ssrc：{}", username, addressStr, port, ssrc);
 				Device device  = null;
+				StreamInfo streamInfo = redisCatchStorage.queryPlayByChannel(channelId);
+				String mediaServerIp = streamInfo.getMediaServerIp();
 				// 通过 channel 和 gbStream 是否为null 值判断来源是直播流合适国标
 				if (channel != null) {
 					device = storager.queryVideoDeviceByPlatformIdAndChannelId(requesterId, channelId);
@@ -198,9 +201,9 @@ public class InviteRequestProcessor extends SIPRequestAbstractProcessor {
 						ZLMServerConfig mediaInfo = redisCatchStorage.getMediaInfo();
 						StringBuffer content = new StringBuffer(200);
 						content.append("v=0\r\n");
-						content.append("o="+"00000"+" 0 0 IN IP4 "+mediaInfo.getWanIp()+"\r\n");
+						content.append("o="+"00000"+" 0 0 IN IP4 "+mediaServerIp+"\r\n");
 						content.append("s=Play\r\n");
-						content.append("c=IN IP4 "+mediaInfo.getWanIp()+"\r\n");
+						content.append("c=IN IP4 "+mediaServerIp+"\r\n");
 						content.append("t=0 0\r\n");
 						content.append("m=video "+ sendRtpItem.getLocalPort()+" RTP/AVP 96\r\n");
 						content.append("a=sendonly\r\n");
@@ -254,9 +257,9 @@ public class InviteRequestProcessor extends SIPRequestAbstractProcessor {
 					ZLMServerConfig mediaInfo = redisCatchStorage.getMediaInfo();
 					StringBuffer content = new StringBuffer(200);
 					content.append("v=0\r\n");
-					content.append("o="+"00000"+" 0 0 IN IP4 "+mediaInfo.getWanIp()+"\r\n");
+					content.append("o="+"00000"+" 0 0 IN IP4 "+mediaServerIp+"\r\n");
 					content.append("s=Play\r\n");
-					content.append("c=IN IP4 "+mediaInfo.getWanIp()+"\r\n");
+					content.append("c=IN IP4 "+mediaServerIp+"\r\n");
 					content.append("t=0 0\r\n");
 					content.append("m=video "+ sendRtpItem.getLocalPort()+" RTP/AVP 96\r\n");
 					content.append("a=sendonly\r\n");

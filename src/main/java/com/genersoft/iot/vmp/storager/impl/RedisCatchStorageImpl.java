@@ -13,6 +13,9 @@ import org.springframework.stereotype.Component;
 
 import java.util.*;
 
+/**
+ * redis的key与主分支不同
+ */
 @SuppressWarnings("rawtypes")
 @Component
 public class RedisCatchStorageImpl implements IRedisCatchStorage {
@@ -79,14 +82,14 @@ public class RedisCatchStorageImpl implements IRedisCatchStorage {
      * 查询播放列表
      * @return
      */
-    @Override
-    public StreamInfo queryPlay(StreamInfo streamInfo) {
-        return (StreamInfo)redis.get(String.format("%S_%s_%s_%s",
-                VideoManagerConstants.PLAYER_PREFIX,
-                streamInfo.getStreamId(),
-                streamInfo.getDeviceID(),
-                streamInfo.getChannelId()));
-    }
+//    @Override
+//    public StreamInfo queryPlay(StreamInfo streamInfo) {
+//        return (StreamInfo)redis.get(String.format("%S_%s_%s_%s",
+//                VideoManagerConstants.PLAYER_PREFIX,
+//                streamInfo.getStreamId(),
+//                streamInfo.getDeviceID(),
+//                streamInfo.getChannelId()));
+//    }
 
     @Override
     public StreamInfo queryPlayByStreamId(String channelId,String steamId) {
@@ -160,11 +163,17 @@ public class RedisCatchStorageImpl implements IRedisCatchStorage {
     @Override
     public StreamInfo queryPlayByDevice(String deviceId, String channelId) {
 //		List<Object> playLeys = redis.keys(String.format("%S_*_%s_%s", VideoManagerConstants.PLAYER_PREFIX,
-        List<Object> playLeys = redis.scan(String.format("%S_*_%s_%s", VideoManagerConstants.PLAYER_PREFIX,
-                deviceId,
-                channelId));
-        if (playLeys == null || playLeys.size() == 0) return null;
-        return (StreamInfo)redis.get(playLeys.get(0).toString());
+//        List<Object> playLeys = redis.scan(String.format("%S_*_%s_%s", VideoManagerConstants.PLAYER_PREFIX,
+//                deviceId,
+//                channelId));
+//        if (playLeys == null || playLeys.size() == 0) return null;
+//        return (StreamInfo)redis.get(playLeys.get(0).toString());
+        String key = getKey(VideoManagerConstants.PLAYER_PREFIX,
+                null,
+                channelId,
+                deviceId
+        );
+        return scanOne(key);
     }
 
     /**
@@ -191,13 +200,13 @@ public class RedisCatchStorageImpl implements IRedisCatchStorage {
     public Map<String, StreamInfo> queryPlayByDeviceId(String deviceId) {
         Map<String, StreamInfo> streamInfos = new HashMap<>();
 //		List<Object> playLeys = redis.keys(String.format("%S_*_%S_*", VideoManagerConstants.PLAYER_PREFIX, deviceId));
-        List<Object> players = redis.scan(String.format("%S_*_%S_*", VideoManagerConstants.PLAYER_PREFIX, deviceId));
-        if (players.size() == 0) return streamInfos;
-        for (int i = 0; i < players.size(); i++) {
-            String key = (String) players.get(i);
-            StreamInfo streamInfo = (StreamInfo)redis.get(key);
-            streamInfos.put(streamInfo.getDeviceID() + "_" + streamInfo.getChannelId(), streamInfo);
-        }
+//        List<Object> players = redis.scan(String.format("%S_*_%S_*", VideoManagerConstants.PLAYER_PREFIX, deviceId));
+//        if (players.size() == 0) return streamInfos;
+//        for (int i = 0; i < players.size(); i++) {
+//            String key = (String) players.get(i);
+//            StreamInfo streamInfo = (StreamInfo)redis.get(key);
+//            streamInfos.put(streamInfo.getDeviceID() + "_" + streamInfo.getChannelId(), streamInfo);
+//        }
         return streamInfos;
     }
 
@@ -231,19 +240,25 @@ public class RedisCatchStorageImpl implements IRedisCatchStorage {
     }
 
     @Override
-    public StreamInfo queryPlaybackByDevice(String deviceId, String code) {
+    public StreamInfo queryPlaybackByDevice(String deviceId, String channelId) {
         // String format = String.format("%S_*_%s_%s", VideoManagerConstants.PLAY_BLACK_PREFIX,
         //         deviceId,
         //         code);
-        List<Object> playLeys = redis.scan(String.format("%S_*_%s_%s", VideoManagerConstants.PLAY_BLACK_PREFIX,
-                deviceId,
-                code));
-        if (playLeys == null || playLeys.size() == 0) {
-            playLeys = redis.scan(String.format("%S_*_*_%s", VideoManagerConstants.PLAY_BLACK_PREFIX,
-                    deviceId));
-        }
-        if (playLeys == null || playLeys.size() == 0) return null;
-        return (StreamInfo)redis.get(playLeys.get(0).toString());
+//        List<Object> playLeys = redis.scan(String.format("%S_*_%s_%s", VideoManagerConstants.PLAY_BLACK_PREFIX,
+//                deviceId,
+//                code));
+//        if (playLeys == null || playLeys.size() == 0) {
+//            playLeys = redis.scan(String.format("%S_*_*_%s", VideoManagerConstants.PLAY_BLACK_PREFIX,
+//                    deviceId));
+//        }
+//        if (playLeys == null || playLeys.size() == 0) return null;
+//        return (StreamInfo)redis.get(playLeys.get(0).toString());
+        String key = getKey(VideoManagerConstants.PLAY_BLACK_PREFIX,
+                null,
+                channelId,
+                deviceId
+        );
+        return scanOne(key);
     }
 
     @Override

@@ -27,11 +27,11 @@ public interface IRedisCatchStorage {
      */
     boolean stopPlay(StreamInfo streamInfo);
 
-    /**
-     * 查询播放列表
-     * @return
-     */
-    StreamInfo queryPlay(StreamInfo streamInfo);
+//    /**
+//     * 查询播放列表
+//     * @return
+//     */
+//    StreamInfo queryPlay(StreamInfo streamInfo);
 
     StreamInfo queryPlayByStreamId(String channelId,String steamId);
 

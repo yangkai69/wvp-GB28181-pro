@@ -924,10 +924,12 @@ public class MessageRequestProcessor extends SIPRequestAbstractProcessor {
 			String NotifyType =XmlUtil.getText(rootElement, "NotifyType");
 			if (NotifyType.equals("121")){
 				logger.info("媒体播放完毕，通知关流");
-				StreamInfo streamInfo = redisCatchStorage.queryPlaybackByDevice(deviceId, "*");
-				if (streamInfo != null) {
-					redisCatchStorage.stopPlayback(streamInfo);
-					cmder.streamByeCmd(streamInfo.getDeviceID(), streamInfo.getChannelId());
+				List<StreamInfo> streamInfos = redisCatchStorage.queryPlayBackByDeviceId(deviceId);
+//				StreamInfo streamInfo = redisCatchStorage.queryPlaybackByDevice(deviceId, "*");
+				if (streamInfos != null && !streamInfos.isEmpty()) {
+					for (StreamInfo streamInfo : streamInfos) {
+						cmder.streamByeCmd(streamInfo.getDeviceID(), streamInfo.getChannelId());
+					}
 				}
 			}
 		} catch (ParseException | SipException | InvalidArgumentException | DocumentException e) {

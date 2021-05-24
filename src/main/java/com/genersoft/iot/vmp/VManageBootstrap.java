@@ -2,9 +2,12 @@ package com.genersoft.iot.vmp;
 
 import java.util.logging.LogManager;
 
+import com.genersoft.iot.vmp.filter.MyFilter;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.context.annotation.Bean;
 import springfox.documentation.oas.annotations.EnableOpenApi;
 
 @SpringBootApplication
@@ -22,4 +25,15 @@ public class VManageBootstrap extends LogManager {
 		VManageBootstrap.context = SpringApplication.run(VManageBootstrap.class, args);
  
 	}
+
+	@Bean
+	public FilterRegistrationBean filterRegiste() {
+		FilterRegistrationBean regFilter = new FilterRegistrationBean();
+		regFilter.setFilter(new MyFilter());
+		regFilter.addUrlPatterns("/*");
+		regFilter.setName("MyFilter");
+		regFilter.setOrder(6);
+		return regFilter;
+	}
+
 }

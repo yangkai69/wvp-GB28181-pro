@@ -67,6 +67,9 @@ public class PlayServiceImpl implements IPlayService {
     public PlayResult play(String deviceId, String channelId, ZLMHttpHookSubscribe.Event hookEvent, SipSubscribe.Event errorEvent) {
         PlayResult playResult = new PlayResult();
         Device device = storager.queryVideoDevice(deviceId);
+        if(device == null){
+            throw new NullPointerException();
+        }
         StreamInfo streamInfo = redisCatchStorage.queryPlayByDevice(deviceId, channelId);
         playResult.setDevice(device);
         UUID uuid = UUID.randomUUID();

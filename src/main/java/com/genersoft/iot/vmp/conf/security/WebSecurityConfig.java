@@ -114,7 +114,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 // 放行接口
                 .antMatchers("/api/user/login","/index/hook/**").permitAll()
                 // 除上面外的所有请求全部需要鉴权认证
-                .anyRequest().authenticated()
+//                .anyRequest().authenticated()//去掉cookie验证
                 // 异常处理(权限拒绝、登录失效等)
                 .and().exceptionHandling()
                 .authenticationEntryPoint(anonymousAuthenticationEntryPoint)//匿名用户访问无权限资源时的异常处理

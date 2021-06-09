@@ -100,4 +100,12 @@ public interface DeviceChannelMapper {
             " </script>"})
 
     List<ChannelReduce> queryChannelListInAll(String query, Boolean online, Boolean hasSubChannel, String platformId, Boolean inPlatform);
+
+    @Select("SELECT * FROM device_channel WHERE channelId in (${channelIds}) ")
+    List<DeviceChannel> queryByChannelIds(String channelIds);
+
+    @Select("SELECT status FROM device_channel ")
+    List<Integer> queryOnline();
+
+
 }

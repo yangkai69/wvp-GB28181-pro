@@ -591,4 +591,21 @@ public class VideoManagerStoragerImpl implements IVideoManagerStorager {
 	public void updateParentPlatformStatus(String platformGbID, boolean online) {
 		platformMapper.updateParentPlatformStatus(platformGbID, online);
 	}
+
+	@Override
+	public void addChannelId(DeviceChannel deviceChannel) {
+		deviceChannelMapper.add(deviceChannel);
+	}
+
+	@Override
+	public List<DeviceChannel> queryChannel(String deviceIdList) {
+		List<DeviceChannel> list = deviceChannelMapper.queryByChannelIds(deviceIdList);
+		return list;
+	}
+
+	@Override
+	public List<Integer> queryOnline() {
+		List<Integer> list = deviceChannelMapper.queryOnline();
+		return list;
+	}
 }

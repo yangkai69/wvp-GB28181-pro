@@ -365,4 +365,22 @@ public interface IVideoManagerStorager {
 	 * @param online
 	 */
 	void updateParentPlatformStatus(String platformGbID, boolean online);
+
+	/**
+	 * 添加channelId（用于测试）
+	 *
+	 */
+	void addChannelId(DeviceChannel deviceChannel);
+
+	/**
+	 * 获取channelId对应的经纬度
+	 * @return
+	 */
+	List<DeviceChannel> queryChannel(String deviceIdList);
+
+	/**
+	 * 获取channelId对应的经纬度
+	 * @return
+	 */
+	List<Integer> queryOnline();
 }

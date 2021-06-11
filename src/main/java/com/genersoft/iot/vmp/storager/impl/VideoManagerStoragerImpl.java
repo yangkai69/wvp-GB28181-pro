@@ -9,6 +9,7 @@ import com.genersoft.iot.vmp.media.zlm.dto.StreamProxyItem;
 import com.genersoft.iot.vmp.media.zlm.dto.StreamPushItem;
 import com.genersoft.iot.vmp.storager.IRedisCatchStorage;
 import com.genersoft.iot.vmp.storager.dao.*;
+import com.genersoft.iot.vmp.utils.HttpUtil;
 import com.genersoft.iot.vmp.vmanager.gb28181.platform.bean.ChannelReduce;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
@@ -70,6 +71,8 @@ public class VideoManagerStoragerImpl implements IVideoManagerStorager {
 	@Autowired
     private VideoStreamSessionManager streamSession;
 
+	@Autowired
+	HttpUtil httpUtil;
 
 	/**
 	 * 根据设备ID判断设备是否存在
@@ -112,6 +115,8 @@ public class VideoManagerStoragerImpl implements IVideoManagerStorager {
 
 	}
 
+
+
 	@Override
 	public synchronized void updateChannel(String deviceId, DeviceChannel channel) {
 		String channelId = channel.getChannelId();
@@ -123,6 +128,7 @@ public class VideoManagerStoragerImpl implements IVideoManagerStorager {
 		}else {
 			deviceChannelMapper.update(channel);
 		}
+		httpUtil.sendToWebsocket();
 	}
 
 	@Override
@@ -218,6 +224,7 @@ public class VideoManagerStoragerImpl implements IVideoManagerStorager {
 			}
 			result = true;
 			dataSourceTransactionManager.commit(transactionStatus);     //手动提交
+			httpUtil.sendToWebsocket();
 		}catch (Exception e) {
 			dataSourceTransactionManager.rollback(transactionStatus);
 		}
@@ -275,6 +282,7 @@ public class VideoManagerStoragerImpl implements IVideoManagerStorager {
 	@Override
 	public void cleanChannelsForDevice(String deviceId) {
 		deviceChannelMapper.cleanChannelsByDeviceId(deviceId);
+		httpUtil.sendToWebsocket();
 	}
 
 	/**
@@ -595,6 +603,7 @@ public class VideoManagerStoragerImpl implements IVideoManagerStorager {
 	@Override
 	public void addChannelId(DeviceChannel deviceChannel) {
 		deviceChannelMapper.add(deviceChannel);
+		httpUtil.sendToWebsocket();
 	}
 
 	@Override

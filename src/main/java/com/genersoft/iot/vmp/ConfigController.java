@@ -24,14 +24,14 @@ public class ConfigController {
 
     @RequestMapping("/sipConfigListAction")
     public JSONArray sipConfigList() throws IOException {
-//        File file = new File("../application.yml");
-        File directory = new File("");
-        String filePath = directory.getAbsolutePath() + "/src/main/resources/application.yml";
+        File file = new File("../application.yml");
+//        File directory = new File("");
+//        String filePath = directory.getAbsolutePath() + "/src/main/resources/application.yml";
         Map<String, Object> obj = null;
 
         //解析yml文件的关键类
         Yaml yml = null;
-        try (FileInputStream in = new FileInputStream(filePath)) {
+        try (FileInputStream in = new FileInputStream(file)) {
 
             yml = new Yaml();
             obj = (Map) yml.load(in);
@@ -71,11 +71,11 @@ public class ConfigController {
         jsonObject5.put("config_value", ((Map) ((Map) obj).get("server")).get("port"));
         jsonArray.add(jsonObject5);
 
-        JSONObject jsonObject6 = new JSONObject();
-        jsonObject6.put("config", "sip_ip");
-        jsonObject6.put("config_name", "SIP服务器IP地址");
-        jsonObject6.put("config_value", ((Map) ((Map) obj).get("sip")).get("ip"));
-        jsonArray.add(jsonObject6);
+//        JSONObject jsonObject6 = new JSONObject();
+//        jsonObject6.put("config", "sip_ip");
+//        jsonObject6.put("config_name", "SIP服务器IP地址");
+//        jsonObject6.put("config_value", ((Map) ((Map) obj).get("sip")).get("ip"));
+//        jsonArray.add(jsonObject6);
 
         JSONObject jsonObject7 = new JSONObject();
         jsonObject7.put("config", "sip_port");
@@ -181,9 +181,9 @@ public class ConfigController {
 
 
     private void updateYml(JSONArray jsonArray) throws Exception {
-//        File file = new File("../application.yml");
-        File directory = new File("");
-        String file = directory.getAbsolutePath() + "/src/main/resources/application.yml";
+        File file = new File("../application.yml");
+//        File directory = new File("");
+//        String file = directory.getAbsolutePath() + "/src/main/resources/application.yml";
         Map<String, Object> obj = null;
 
         //解析yml文件的关键类

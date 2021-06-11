@@ -1,8 +1,10 @@
 package com.genersoft.iot.vmp;
 
+import java.util.Timer;
 import java.util.logging.LogManager;
 
 import com.genersoft.iot.vmp.filter.MyFilter;
+import com.genersoft.iot.vmp.utils.HttpUtil;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
@@ -18,6 +20,10 @@ public class VManageBootstrap extends LogManager {
 	public static void main(String[] args) {
 		VManageBootstrap.args = args;
 		VManageBootstrap.context = SpringApplication.run(VManageBootstrap.class, args);
+
+		HttpUtil httpUtil = new HttpUtil();
+		httpUtil.sendRestart();
+
 	}
 	// 项目重启
 	public static void restart() {

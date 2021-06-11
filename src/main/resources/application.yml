@@ -22,7 +22,7 @@ server:
     key-password: password
     key-store-type: JKS
 sip:
-  ip: 192.168.1.80
+  ip: 192.168.1.44
   port: '5060'
   domain: '4401020049'
   id: '44010200492000000001'

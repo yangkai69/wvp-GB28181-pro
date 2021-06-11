@@ -6,6 +6,7 @@ import com.genersoft.iot.vmp.media.zlm.ZLMServerConfig;
 import com.genersoft.iot.vmp.gb28181.bean.*;
 import com.genersoft.iot.vmp.storager.IRedisCatchStorage;
 import com.genersoft.iot.vmp.storager.dao.DeviceChannelMapper;
+import com.genersoft.iot.vmp.utils.HttpUtil;
 import com.genersoft.iot.vmp.utils.redis.RedisUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -220,6 +221,8 @@ public class RedisCatchStorageImpl implements IRedisCatchStorage {
         return redis.set(key, stream);
     }
 
+    @Autowired
+    HttpUtil httpUtil;
 
     @Override
     public boolean stopPlayback(StreamInfo streamInfo) {
@@ -229,6 +232,7 @@ public class RedisCatchStorageImpl implements IRedisCatchStorage {
             deviceChannel.setStreamId(null);
             deviceChannel.setDeviceId(streamInfo.getDeviceID());
             deviceChannelMapper.update(deviceChannel);
+            httpUtil.sendToWebsocket();
         }
         String key = getKey(VideoManagerConstants.PLAY_BLACK_PREFIX,
                 streamInfo.getStreamId(),

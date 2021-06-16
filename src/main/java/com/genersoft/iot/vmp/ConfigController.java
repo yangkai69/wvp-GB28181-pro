@@ -24,9 +24,10 @@ public class ConfigController {
 
     @RequestMapping("/sipConfigListAction")
     public JSONArray sipConfigList() throws IOException {
-        File file = new File("../application.yml");
+        File directory = new File("");
+        String file = directory.getAbsolutePath() + "/application.yml";
 //        File directory = new File("");
-//        String filePath = directory.getAbsolutePath() + "/src/main/resources/application.yml";
+//        String file = directory.getAbsolutePath() + "/src/main/resources/application.yml";
         Map<String, Object> obj = null;
 
         //解析yml文件的关键类
@@ -181,8 +182,8 @@ public class ConfigController {
 
 
     private void updateYml(JSONArray jsonArray) throws Exception {
-        File file = new File("../application.yml");
-//        File directory = new File("");
+        File directory = new File("");
+        String file = directory.getAbsolutePath() + "/application.yml";
 //        String file = directory.getAbsolutePath() + "/src/main/resources/application.yml";
         Map<String, Object> obj = null;
 

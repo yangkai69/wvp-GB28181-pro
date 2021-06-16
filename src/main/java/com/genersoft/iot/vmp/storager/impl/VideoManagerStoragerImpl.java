@@ -607,6 +607,12 @@ public class VideoManagerStoragerImpl implements IVideoManagerStorager {
 	}
 
 	@Override
+	public void deleteDirty() {
+		deviceChannelMapper.deleteDirty();
+		httpUtil.sendToWebsocket();
+	}
+
+	@Override
 	public List<DeviceChannel> queryChannel(String deviceIdList) {
 		List<DeviceChannel> list = deviceChannelMapper.queryByChannelIds(deviceIdList);
 		return list;

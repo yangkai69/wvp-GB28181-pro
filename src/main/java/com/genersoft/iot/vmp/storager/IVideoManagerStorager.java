@@ -373,13 +373,19 @@ public interface IVideoManagerStorager {
 	void addChannelId(DeviceChannel deviceChannel);
 
 	/**
+	 * 删除脏数据（用于测试）
+	 *
+	 */
+	void deleteDirty();
+
+	/**
 	 * 获取channelId对应的经纬度
 	 * @return
 	 */
 	List<DeviceChannel> queryChannel(String deviceIdList);
 
 	/**
-	 * 获取channelId对应的经纬度
+	 * 获取摄像头数量
 	 * @return
 	 */
 	List<Integer> queryOnline();

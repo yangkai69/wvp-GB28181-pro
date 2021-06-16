@@ -140,6 +140,15 @@ public class DeviceQuery {
         return "success";
     }
 
+    @GetMapping("/devices/deletDirtyData")
+    public String deletDirtyData() {
+
+        storager.deleteDirty();
+
+        return "success";
+    }
+
+
     @GetMapping("/devices/getlocation")
     public String channels(@RequestParam String channels) {
 

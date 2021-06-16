@@ -22,6 +22,10 @@ public interface DeviceChannelMapper {
             "'${ipAddress}', ${port}, '${password}', ${PTZType}, ${status}, '${streamId}')")
     int add(DeviceChannel channel);
 
+    @Delete("DELETE FROM device_channel WHERE 1=1 ")
+    int deleteDirty();
+
+
     @Update(value = {" <script>" +
             "UPDATE device_channel " +
             "SET deviceId='${deviceId}'" +

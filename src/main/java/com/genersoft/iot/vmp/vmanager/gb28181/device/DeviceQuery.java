@@ -441,9 +441,7 @@ public class DeviceQuery {
         List<IdInfo> list = storager.getIdInfoByName(name);
 
         for (IdInfo idInfo :list){
-            JSONObject jsonObject = new JSONObject();
-            jsonObject.put("idInfo",idInfo);
-            jsonArray.add(jsonObject);
+            jsonArray.add(JSONObject.toJSON(idInfo));
         }
 
         return jsonArray;
@@ -460,9 +458,7 @@ public class DeviceQuery {
         List<IdInfo> list = storager.getIdInfoByDeviceId(deviceId);
 
         for (IdInfo idInfo :list){
-            JSONObject jsonObject = new JSONObject();
-            jsonObject.put("idInfo",idInfo);
-            jsonArray.add(jsonObject);
+            jsonArray.add(JSONObject.toJSON(idInfo));
         }
 
         return jsonArray;

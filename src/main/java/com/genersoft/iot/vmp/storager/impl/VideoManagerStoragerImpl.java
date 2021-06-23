@@ -3,6 +3,7 @@ package com.genersoft.iot.vmp.storager.impl;
 import java.util.*;
 
 import com.genersoft.iot.vmp.common.StreamInfo;
+import com.genersoft.iot.vmp.entity.IdInfo;
 import com.genersoft.iot.vmp.gb28181.bean.*;
 import com.genersoft.iot.vmp.gb28181.session.VideoStreamSessionManager;
 import com.genersoft.iot.vmp.media.zlm.dto.StreamProxyItem;
@@ -621,6 +622,19 @@ public class VideoManagerStoragerImpl implements IVideoManagerStorager {
 	@Override
 	public List<Integer> queryOnline() {
 		List<Integer> list = deviceChannelMapper.queryOnline();
+		return list;
+	}
+
+	@Override
+	public List<IdInfo> getIdInfoByName(String name) {
+
+		List<IdInfo> list = deviceChannelMapper.getIdInfoByName(name);
+		return list;
+	}
+
+	@Override
+	public List<IdInfo> getIdInfoByDeviceId(String deviceId) {
+		List<IdInfo> list = deviceChannelMapper.getIdInfoByDeviceId(deviceId);
 		return list;
 	}
 }

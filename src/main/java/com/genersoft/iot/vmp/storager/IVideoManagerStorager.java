@@ -1,7 +1,9 @@
 package com.genersoft.iot.vmp.storager;
 
+import java.nio.channels.Channel;
 import java.util.List;
 
+import com.genersoft.iot.vmp.entity.IdInfo;
 import com.genersoft.iot.vmp.gb28181.bean.*;
 import com.genersoft.iot.vmp.media.zlm.dto.StreamProxyItem;
 import com.genersoft.iot.vmp.media.zlm.dto.StreamPushItem;
@@ -389,4 +391,14 @@ public interface IVideoManagerStorager {
 	 * @return
 	 */
 	List<Integer> queryOnline();
+
+	/**
+	 * 获取id
+	 */
+	List<IdInfo> getIdInfoByName(String name);
+
+	/**
+	 * 获取id
+	 */
+	List<IdInfo> getIdInfoByDeviceId(String deviceId);
 }

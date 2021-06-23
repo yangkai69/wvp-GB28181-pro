@@ -1,5 +1,6 @@
 package com.genersoft.iot.vmp.storager.dao;
 
+import com.genersoft.iot.vmp.entity.IdInfo;
 import com.genersoft.iot.vmp.gb28181.bean.DeviceChannel;
 import com.genersoft.iot.vmp.vmanager.gb28181.platform.bean.ChannelReduce;
 import org.apache.ibatis.annotations.*;
@@ -111,5 +112,10 @@ public interface DeviceChannelMapper {
     @Select("SELECT status FROM device_channel ")
     List<Integer> queryOnline();
 
+    @Select("SELECT deviceId,channelId,name FROM device_channel where name like '%${name}%'")
+    List<IdInfo> getIdInfoByName(String name);
+
+    @Select("SELECT deviceId,channelId,name FROM device_channel where deviceId like '%${deviceId}%'")
+    List<IdInfo> getIdInfoByDeviceId(String deviceId);
 
 }

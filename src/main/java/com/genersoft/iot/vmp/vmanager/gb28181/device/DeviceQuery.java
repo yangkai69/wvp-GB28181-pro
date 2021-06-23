@@ -1,5 +1,7 @@
 package com.genersoft.iot.vmp.vmanager.gb28181.device;
 
+import com.alibaba.fastjson.JSONArray;
+import com.genersoft.iot.vmp.entity.IdInfo;
 import com.genersoft.iot.vmp.gb28181.bean.DeviceChannel;
 import com.genersoft.iot.vmp.gb28181.transmit.callback.RequestMessage;
 import com.genersoft.iot.vmp.storager.IRedisCatchStorage;
@@ -427,5 +429,44 @@ public class DeviceQuery {
 
         return jsonObject;
     }
+
+    /**
+     * 通过通道名称获取id
+     */
+    @GetMapping("/devices/getIdInfoByName")
+    public JSONArray getIdInfoByName(@RequestParam String name) {
+
+        JSONArray jsonArray = new JSONArray();
+
+        List<IdInfo> list = storager.getIdInfoByName(name);
+
+        for (IdInfo idInfo :list){
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.put("idInfo",idInfo);
+            jsonArray.add(jsonObject);
+        }
+
+        return jsonArray;
+    }
+
+    /**
+     * 通过通道id获取channelId和通道中文名
+     */
+    @GetMapping("/devices/getIdInfoByDeviceId")
+    public JSONArray getIdInfoByDeviceId(@RequestParam String deviceId) {
+
+        JSONArray jsonArray = new JSONArray();
+
+        List<IdInfo> list = storager.getIdInfoByDeviceId(deviceId);
+
+        for (IdInfo idInfo :list){
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.put("idInfo",idInfo);
+            jsonArray.add(jsonObject);
+        }
+
+        return jsonArray;
+    }
+
 
 }
